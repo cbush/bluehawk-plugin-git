@@ -2,7 +2,11 @@
   "name": "bluehawk-plugin-git",
   "version": "0.1.0",
   "description": "Bluehawk x git plugin",
-  "main": "./build/",
+  "main": "./build/index.js",
+  "files": ["build"],
+  "bin": {
+    "bluehawk-plugin-git": "./build/locate.js"
+  },
   "scripts": {
     "clean": "rm -rf build",
     "build": "tsc -b",
