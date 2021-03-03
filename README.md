@@ -10,13 +10,16 @@ npm install -g bluehawk bluehawk-plugin-git
 
 ## Usage
 
+The `bluehawk-plugin-git` executable returns its installation path, so you can
+use it easily with `bluehawk --plugin`.
+
 ### Copy
 
 Run `bluehawk copy` to a remote git repo, commit, and push.
 
 ```sh
 bluehawk \
-  --plugin /path/to/bluehawk-plugin-git \
+  --plugin "`bluehawk-plugin-git`" \
   git copy \
     --to-repo git@github.com:your/targetRepo.git \
     --state start \
