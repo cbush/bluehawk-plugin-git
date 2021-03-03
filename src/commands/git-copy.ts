@@ -9,7 +9,7 @@ const commandModule: CommandModule<
   MainArgs & { rootPath: string },
   GitCopyArgs
 > = {
-  command: "git-copy <rootPath>",
+  command: "copy <rootPath>",
   describe:
     "copy source project to a git repo with Bluehawk commands processed, commit, and push",
   builder(yargs) {
@@ -31,7 +31,7 @@ const commandModule: CommandModule<
       .option("delete-everything", {
         boolean: true,
         describe:
-          "if true, delete everything in the cloned destination repo before copying",
+          "if set, delete everything in the cloned destination repo before copying",
       });
   },
   handler: gitCopy,

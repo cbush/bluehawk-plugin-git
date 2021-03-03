@@ -3,7 +3,10 @@ import { commandDir, Plugin } from "bluehawk";
 
 const plugin: Plugin = {
   register({ yargs }) {
-    commandDir(yargs, Path.join(__dirname, "commands"));
+    yargs.command("git", "git functionality", (args) =>
+      commandDir(args.demandCommand(), Path.join(__dirname, "commands"))
+    ),
+      () => yargs.showHelp();
   },
 };
 
