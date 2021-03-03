@@ -13,7 +13,6 @@ const commandModule: CommandModule<
   describe:
     "copy source project to a git repo with Bluehawk commands processed, commit, and push",
   builder(yargs) {
-    yargs.parserConfiguration({ "duplicate-arguments-array": false });
     return withIgnoreOption(withStateOption(yargs))
       .option("to-repo", {
         string: true,
