@@ -61,6 +61,7 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
     branch,
     deleteEverything,
     commitMessage,
+    startPoint,
   } = args;
   const toRepo = args["to-repo"];
   const clonePath = "___temp_clone___";
@@ -83,7 +84,9 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
   await git.clone(toRepo, clonePath, cloneOptions);
   try {
     if (branch !== undefined && !branchExists) {
-      await git.cwd(clonePath).checkoutLocalBranch(branch);
+      startPoint !== undefined
+        ? await git.cwd(clonePath).checkoutBranch(branch, startPoint)
+        : await git.cwd(clonePath).checkoutLocalBranch(branch);
     }
 
     if (deleteEverything) {
@@ -108,6 +111,7 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
       .add(".")
       .commit(message)
       .push(branch ? ["-u", "origin", branch] : undefined);
+
     console.log("Push result:", result);
   } finally {
     await rimraf(clonePath);
