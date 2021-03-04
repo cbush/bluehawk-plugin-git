@@ -1,5 +1,6 @@
 import { strict as assert } from "assert";
 import _rimraf from "rimraf";
+import { promises as fs } from "fs";
 import * as Path from "path";
 import { copy, MainArgs, withIgnoreOption, withStateOption } from "bluehawk";
 import simpleGit from "simple-git";
@@ -63,7 +64,8 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
     startPoint,
   } = args;
   const toRepo = args["to-repo"];
-  const clonePath = "___temp_clone___";
+  // Basename works on URLs too
+  const clonePath = `temporary_${Path.basename(toRepo)}_clone`;
   const branchExists = await remoteBranchExists(toRepo, branch);
   if (branch !== undefined) {
     console.log(`Branch ${branch} exists: ${branchExists}`);
@@ -90,7 +92,13 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
 
     if (deleteEverything) {
       console.log("Deleting everything in clone.");
+      console.log(
+        `Before:\n${(await listFilesInTreeExceptGit(clonePath)).join("\n")}\n`
+      );
       await rimraf(Path.join(clonePath, "*"));
+      console.log(
+        `After:\n${(await listFilesInTreeExceptGit(clonePath)).join("\n")}\n`
+      );
     }
 
     console.log("Copying...");
@@ -101,17 +109,23 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
       destination: clonePath,
       waitForListeners: true,
     });
-    console.log("Copy complete.");
-
+    console.log(
+      `Copy complete. Files:\n${(
+        await listFilesInTreeExceptGit(clonePath)
+      ).join("\n")}\n`
+    );
+    console.log("Adding...");
+    const result = await git.cwd(clonePath).add(".");
+    console.log("Add result:", result);
     const message = commitMessage ?? "Update";
     console.log("Committing with message:", message);
-    const result = await git
+    const commitResult = await git.cwd(clonePath).commit(message);
+    console.log("Commit result:", commitResult);
+    console.log("Pushing...");
+    const pushResult = await git
       .cwd(clonePath)
-      .add(".")
-      .commit(message)
       .push(branch ? ["-u", "origin", branch] : undefined);
-
-    console.log("Push result:", result);
+    console.log("Push result:", pushResult);
   } finally {
     await rimraf(clonePath);
   }
@@ -131,6 +145,24 @@ function rimraf(path: string, options?: _rimraf.Options) {
   return new Promise<void>((resolve, reject) =>
     _rimraf(path, options ?? {}, (error) => (error ? reject(error) : resolve()))
   );
+}
+
+async function listFilesInTreeExceptGit(path: string): Promise<string[]> {
+  if (Path.basename(path) === ".git") {
+    return [];
+  }
+  const stats = await fs.stat(path);
+  if (!stats.isDirectory()) {
+    return [path];
+  }
+  const paths = await fs.readdir(path);
+  return (
+    await Promise.all(
+      paths.map((innerPath) =>
+        listFilesInTreeExceptGit(Path.join(path, innerPath))
+      )
+    )
+  ).flat();
 }
 
 export default commandModule;

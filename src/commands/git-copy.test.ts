@@ -158,5 +158,6 @@ Hello!
     expect(log).toMatchObject({ latest: { message: "It works!" } });
     expect(log.all.length).toBe(2);
     expect(() => fs.readFile(pathToTrash, "utf8")).rejects.toThrow();
+    expect(await fs.readFile(pathToTestFile, "utf8")).toBe("test.txt\n");
   });
 });
