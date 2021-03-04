@@ -114,12 +114,9 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
         await listFilesInTreeExceptGit(clonePath)
       ).join("\n")}\n`
     );
-    console.log("Adding...");
-    const result = await git.cwd(clonePath).add(".");
-    console.log("Add result:", result);
     const message = commitMessage ?? "Update";
     console.log("Committing with message:", message);
-    const commitResult = await git.cwd(clonePath).commit(message);
+    const commitResult = await git.cwd(clonePath).add(".").commit(message);
     console.log("Commit result:", commitResult);
     console.log("Pushing...");
     const pushResult = await git
