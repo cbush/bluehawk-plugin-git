@@ -102,13 +102,14 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
     }
 
     console.log("Copying...");
-    await copy({
+    const errors = await copy({
       rootPath,
       ignore,
       state,
       destination: clonePath,
       waitForListeners: true,
     });
+    assert(errors.length === 0);
     console.log(
       `Copy complete. Files:\n${(
         await listFilesInTreeExceptGit(clonePath)
