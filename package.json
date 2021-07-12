@@ -1,6 +1,6 @@
 {
   "name": "bluehawk-plugin-git",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Bluehawk x git plugin",
   "main": "./build/index.js",
   "files": [
