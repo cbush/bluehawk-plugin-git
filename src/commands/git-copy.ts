@@ -2,12 +2,14 @@ import { strict as assert } from "assert";
 import _rimraf from "rimraf";
 import { promises as fs } from "fs";
 import * as Path from "path";
-import { copy, MainArgs, withIgnoreOption, withStateOption } from "bluehawk";
+import { copy, ActionArgs, withIgnoreOption, withStateOption, ConsoleActionReporter } from "bluehawk";
 import simpleGit from "simple-git";
 import { CommandModule } from "yargs";
 
+const reporter = new ConsoleActionReporter();
+
 const commandModule: CommandModule<
-  MainArgs & { rootPath: string },
+  ActionArgs & { rootPath: string },
   GitCopyArgs
 > = {
   command: "copy <rootPath>",
@@ -38,7 +40,7 @@ const commandModule: CommandModule<
   aliases: [],
 };
 
-export interface GitCopyArgs extends MainArgs {
+export interface GitCopyArgs extends ActionArgs {
   rootPath: string;
   state?: string;
   ignore?: string | string[];
@@ -102,14 +104,14 @@ export async function gitCopy(args: GitCopyArgs): Promise<void> {
     }
 
     console.log("Copying...");
-    const errors = await copy({
+    await copy({
       rootPath,
       ignore,
       state,
-      destination: clonePath,
+      output: clonePath,
+      reporter: reporter,
       waitForListeners: true,
     });
-    assert(errors.length === 0);
     console.log(
       `Copy complete. Files:\n${(
         await listFilesInTreeExceptGit(clonePath)
